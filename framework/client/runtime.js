@@ -30,14 +30,17 @@ function isInternalNavigation(link) {
 const mounted = new WeakSet();
 
 async function mountWidgets(root) {
-  for (const el of root.querySelectorAll("[data-widget]")) {
+  const widgets = root.querySelectorAll("[data-widget]");
+  if (!widgets.length) return;
+  const { render } = await import("/__sdf/index.js");
+  for (const el of widgets) {
     if (mounted.has(el)) continue;
     mounted.add(el);
     const name = el.getAttribute("data-widget");
     try {
       const module = await import(`/widgets/${name}.js`);
       const view = module.default ? module.default(el) : null;
-      if (view) el.replaceChildren(view);
+      if (view) el.replaceChildren(view.__tpl ? render(view) : view);
     } catch (error) {
       console.error(`widget "${name}" failed`, error);
     }

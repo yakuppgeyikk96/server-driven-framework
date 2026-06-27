@@ -109,10 +109,14 @@ function nodeAt(root, path) {
 }
 
 export function html(strings, ...values) {
-  let entry = templateCache.get(strings);
+  return { __tpl: true, strings, values };
+}
+
+export function render(result) {
+  let entry = templateCache.get(result.strings);
   if (!entry) {
-    entry = parseTemplate(strings); // parse ONCE per template literal
-    templateCache.set(strings, entry);
+    entry = parseTemplate(result.strings); // parse ONCE per template literal
+    templateCache.set(result.strings, entry);
   }
 
   const clone = entry.holder.cloneNode(true); // ELEMENT clone (fast)
@@ -122,8 +126,8 @@ export function html(strings, ...values) {
   const targets = entry.slots.map((slot) => nodeAt(clone, slot.path));
   entry.slots.forEach((slot, i) => {
     const node = targets[i];
-    if (slot.type === "attr") bindAttr(node, slot.name, values[slot.index]);
-    else bindNode(node, values[slot.index]);
+    if (slot.type === "attr") bindAttr(node, slot.name, result.values[slot.index]);
+    else bindNode(node, result.values[slot.index]);
   });
 
   const root = document.createDocumentFragment();
@@ -177,7 +181,7 @@ function removeRange(from, to) {
 }
 
 function bindList(marker, def) {
-  const { source, keyOf, render } = def;
+  const { source, keyOf, render: renderItem } = def;
   let prev = new Map();
 
   effect(() => {
@@ -205,7 +209,7 @@ function bindList(marker, def) {
         }
         next.set(key, old);
       } else {
-        const nodes = toNodes(render(item));
+        const nodes = toNodes(renderItem(item));
         if (!pending) pending = document.createDocumentFragment();
         for (const node of nodes) pending.appendChild(node);
         next.set(key, { item, nodes });
@@ -248,6 +252,7 @@ function bindNode(marker, value) {
 
 function toNodes(value) {
   if (value === null || value === undefined || value === false) return [];
+  if (value && value.__tpl) return [...render(value).childNodes];
   if (value instanceof DocumentFragment) return [...value.childNodes];
   if (value instanceof Node) return [value];
   if (Array.isArray(value)) return value.flatMap(toNodes);

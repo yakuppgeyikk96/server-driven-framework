@@ -1,4 +1,4 @@
-import { signal, html, list } from "framework/client";
+import { signal, html, list, render } from "framework/client";
 
 export default function () {
   let nextId = 1;
@@ -62,7 +62,7 @@ export default function () {
     const htmlPath = best(() => {
       const f = document.createDocumentFragment();
       for (let i = 0; i < N; i++)
-        f.appendChild(html`<li>row ${i} — value 0</li>`);
+        f.appendChild(render(html`<li>row ${i} — value 0</li>`));
     });
     const createEl = best(() => {
       const f = document.createDocumentFragment();
