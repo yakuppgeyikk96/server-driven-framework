@@ -39,7 +39,9 @@ async function mountWidgets(root) {
     const name = el.getAttribute("data-widget");
     try {
       const module = await import(`/widgets/${name}.js`);
-      const view = module.default ? module.default(el) : null;
+      const propsEl = el.querySelector(":scope > script[data-props]");
+      const props = propsEl ? JSON.parse(propsEl.textContent) : undefined;
+      const view = module.default ? module.default(props, el) : null;
       if (view) el.replaceChildren(view.__tpl ? render(view) : view);
     } catch (error) {
       console.error(`widget "${name}" failed`, error);
@@ -140,14 +142,14 @@ async function runAction(source) {
   }
 }
 
-function triggerOf(source) {
-  return source.getAttribute("data-trigger") || "click";
+function triggersOf(source) {
+  return (source.getAttribute("data-trigger") || "click").split(/\s+/);
 }
 
 for (const type of ["input", "change", "submit"]) {
   document.addEventListener(type, (event) => {
     const source = event.target.closest("[data-action]");
-    if (!source || triggerOf(source) !== type) return;
+    if (!source || !triggersOf(source).includes(type)) return;
     event.preventDefault();
     runAction(source);
   });
@@ -158,7 +160,7 @@ document.addEventListener("click", (event) => {
   if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
 
   const source = event.target.closest("[data-action]");
-  if (source && triggerOf(source) === "click") {
+  if (source && triggersOf(source).includes("click")) {
     event.preventDefault();
     runAction(source);
     return;

@@ -37,9 +37,8 @@ function card(p) {
   </article>`;
 }
 
-export default function (el) {
-  const data = el.querySelector("script[data-shop-products]");
-  const products = JSON.parse(data.textContent);
+export default function (props) {
+  const products = props.products;
   const categories = ["All", ...new Set(products.map((p) => p.category))];
 
   const activeCategory = signal("All");

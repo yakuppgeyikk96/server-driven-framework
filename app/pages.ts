@@ -1,16 +1,10 @@
-import { html, type SafeHtml, type Context } from "../framework/index.ts";
-import {
-  Button,
-  Card,
-  SearchInput,
-  CounterWidget,
-  TodoWidget,
-  StressWidget,
-} from "./components.ts";
+import { html, widget, type SafeHtml, type Context } from "../framework/index.ts";
+import { Button, Card, SearchInput } from "./components.ts";
 import { Counter } from "./counter.ts";
 import { search, SearchResults } from "./search.ts";
 export { BigPage } from "./big.ts";
 export { ProductsPage } from "./products.ts";
+export { ShopServerPage } from "./shop-server.ts";
 
 export function HomePage(_ctx: Context): SafeHtml {
   return html`<h1>Home</h1>
@@ -53,16 +47,15 @@ export function SearchPage(_ctx: Context): SafeHtml {
 }
 
 export function WidgetsPage(_ctx: Context): SafeHtml {
-  console.log("Widget Pages");
   return html`<h1>Widgets</h1>
     <p>
       These run entirely in the browser via signals — no server round-trip, no
       rerender. Their JS loads only on this page.
     </p>
     <h2>Counter</h2>
-    ${CounterWidget({ start: 0 })}
+    ${widget("counter", { start: 0 })}
     <h2>To-do (two-way input + reactive list)</h2>
-    ${TodoWidget()}`;
+    ${widget("todo", undefined, html`<p>Interactive to-do (needs JS).</p>`)}`;
 }
 
 export function StressPage(_ctx: Context): SafeHtml {
@@ -72,7 +65,7 @@ export function StressPage(_ctx: Context): SafeHtml {
       re-render rebuilds the whole list — so it costs about the same as "Update
       ALL". That's the bottleneck we want to fix.
     </p>
-    ${StressWidget()}`;
+    ${widget("stress", undefined, html`<p>Loading stress test…</p>`)}`;
 }
 
 export function NotFoundPage(_ctx: Context): SafeHtml {

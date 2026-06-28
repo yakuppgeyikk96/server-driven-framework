@@ -81,6 +81,11 @@ html.is-navigating {
   color: #6b7280;
 }
 
+.shop__loading {
+  color: #9ca3af;
+  padding: 2rem 0;
+}
+
 .shop__toolbar {
   display: flex;
   flex-direction: column;

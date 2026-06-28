@@ -8,11 +8,13 @@ import {
   WidgetsPage,
   StressPage,
   ProductsPage,
+  ShopServerPage,
 } from "./pages.ts";
 
 export const routes = {
   "/": { title: "Home", view: HomePage },
   "/shop": { title: "Shop", view: ProductsPage },
+  "/shop-server": { title: "Shop (server)", view: ShopServerPage },
   "/about": { title: "About", view: AboutPage },
   "/greet/:name": { title: "Greet", view: GreetPage },
   "/counter": { title: "Counter", view: CounterPage },

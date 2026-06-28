@@ -1,4 +1,4 @@
-import { html, raw, type SafeHtml, type Context } from "../framework/index.ts";
+import { html, widget, type SafeHtml, type Context } from "../framework/index.ts";
 
 export interface Product {
   id: number;
@@ -558,7 +558,7 @@ const COLORS = [
   "Forest",
 ];
 
-function buildCatalog(count: number): Product[] {
+export function buildCatalog(count: number): Product[] {
   const out: Product[] = [];
   for (let i = 0; i < count; i++) {
     const base = CATALOG[i % CATALOG.length];
@@ -588,58 +588,6 @@ export async function fetchProducts(
   return buildCatalog(count);
 }
 
-function stars(rating: number): string {
-  const filled = Math.round(rating);
-  return "★".repeat(filled) + "☆".repeat(5 - filled);
-}
-
-function ProductCard(p: Product): SafeHtml {
-  const badgeClass = p.badge
-    ? "badge--" + p.badge.toLowerCase().replace(/\s+/g, "-")
-    : "";
-  return html`<article class="product">
-    <div class="product__media">
-      <span class="product__emoji">${p.image}</span>
-      ${p.badge
-        ? html`<span class="product__badge ${badgeClass}">${p.badge}</span>`
-        : null}
-    </div>
-    <div class="product__body">
-      <span class="product__category">${p.category}</span>
-      <h3 class="product__name">${p.name}</h3>
-      <span class="product__brand">${p.brand}</span>
-      <div class="product__rating">
-        <span class="product__stars" aria-hidden="true"
-          >${stars(p.rating)}</span
-        >
-        <span class="product__reviews"
-          >${p.rating.toFixed(1)} (${p.reviews.toLocaleString("en-US")})</span
-        >
-      </div>
-      <div class="product__price">
-        <span class="product__amount">$${p.price.toFixed(2)}</span>
-        ${p.oldPrice
-          ? html`<span class="product__old">$${p.oldPrice.toFixed(2)}</span>`
-          : null}
-      </div>
-      <button class="button product__add" ${p.inStock ? "" : "disabled"}>
-        ${p.inStock ? "Add to cart" : "Out of stock"}
-      </button>
-    </div>
-  </article>`;
-}
-
-function ProductGrid(products: Product[]): SafeHtml {
-  return html`<div class="product-grid">${products.map(ProductCard)}</div>`;
-}
-
-function embedData(products: Product[]): SafeHtml {
-  const json = JSON.stringify(products).replace(/</g, "\\u003c");
-  return raw(
-    `<script type="application/json" data-shop-products>${json}</script>`,
-  );
-}
-
 export async function ProductsPage(ctx: Context): Promise<SafeHtml> {
   const requested = Number(ctx.query.get("n") ?? 1000) || 1000;
   const count = Math.min(Math.max(requested, 1), 5000);
@@ -647,13 +595,13 @@ export async function ProductsPage(ctx: Context): Promise<SafeHtml> {
   const categories = new Set(products.map((p) => p.category));
   return html`<h1>Shop</h1>
     <p class="shop__intro">
-      ${products.length} products across ${categories.size} categories —
-      rendered on the server, then enhanced in the browser with live filtering
-      and sorting (no round-trips).
+      ${products.length} products across ${categories.size} categories — fetched
+      on the server, handed to the widget as props, and rendered in the browser
+      with live filtering and sorting.
     </p>
-    <section class="shop" data-widget="shop">
-      ${embedData(products)}
-      <!-- Server-rendered fallback; the widget replaces this once its JS loads. -->
-      ${ProductGrid(products)}
-    </section>`;
+    ${widget(
+      "shop",
+      { products },
+      html`<p class="shop__loading">Loading products…</p>`,
+    )}`;
 }

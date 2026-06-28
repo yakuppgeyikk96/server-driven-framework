@@ -1,7 +1,7 @@
 import { signal, html, effect } from "framework/client";
 
-export default function (el) {
-  const count = signal(Number(el.dataset.start) || 0);
+export default function (props) {
+  const count = signal(Number(props?.start) || 0);
 
   return html`
     <button class="button" onclick=${() => count.set((c) => c - 1)}>-</button>

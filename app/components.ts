@@ -3,7 +3,7 @@ import { html, type SafeHtml, type Action } from "../framework/index.ts";
 export function Nav(): SafeHtml {
   return html`<nav>
     <a href="/">Home</a> · <a href="/shop">Shop</a> ·
-    <a href="/about">About</a> ·
+    <a href="/shop-server">Shop (server)</a> · <a href="/about">About</a> ·
     <a href="/greet/Yakup">Greet</a> · <a href="/counter">Counter</a> ·
     <a href="/search">Search</a> · <a href="/big">Big</a> ·
     <a href="/widgets">Widgets</a> ·
@@ -54,23 +54,3 @@ export function Card(props: { title: string; children: SafeHtml }): SafeHtml {
   </section>`;
 }
 
-export function CounterWidget(props: { start?: number }): SafeHtml {
-  const start = props.start ?? 0;
-  return html`<div
-    class="card"
-    data-widget="counter"
-    data-start="${start}"
-  ></div>`;
-}
-
-export function TodoWidget(): SafeHtml {
-  return html`<div class="card" data-widget="todo">
-    <p>Interactive to-do (needs JS).</p>
-  </div>`;
-}
-
-export function StressWidget(): SafeHtml {
-  return html`<div class="card" data-widget="stress">
-    <p>Loading stress test…</p>
-  </div>`;
-}
